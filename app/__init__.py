@@ -1,7 +1,13 @@
 from flask import Flask
 from .config import Config
 from .routes.messages import bp_message
-from .extensions import db, migrate
+from .extensions import db, migrate, login_manager
+from app.models.user import User
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 def create_app():
     app = Flask(__name__)
@@ -9,6 +15,8 @@ def create_app():
     
     db.init_app(app)
     migrate.init_app(app, db)
+    login_manager.init_app(app)
+
     app.register_blueprint(bp_message)
 
     with app.app_context():
